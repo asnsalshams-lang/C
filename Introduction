@@ -47,6 +47,14 @@ fahr = fahr + step;
 
 For loop
 --------
+1. Execute init ONCE
+2. Jump to cond
+3. If cond == false → exit loop
+4. Execute body
+5. Execute step
+6. Jump back to cond
+
+
 #include <stdio.h>
 /* print Fahrenheit-Celsius table */
 int main(){
