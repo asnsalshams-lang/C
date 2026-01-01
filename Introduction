@@ -77,8 +77,15 @@ putchar(): Writes one single character to standard output (usually screen). Take
 
 int main() {
     int c;
+
+/*------------------------------------(c = getchar()) != EOF ✅ - parentheses protect the assignment, do it first
+c = getchar() != EOF ❌ - != grabs getchar() first, c gets true/false
+Think of parentheses like putting a fence around the assignment to keep != away from it!---------------------------------------------*/
+
     while ((c = getchar()) != EOF) {
         putchar(c);
     }
     return 0;
 }
+
+
