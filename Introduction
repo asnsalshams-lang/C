@@ -11,3 +11,11 @@ combile :
 1. chmod +x file.c
 2. cc file.c
 3. ./a.out
+
+Escape sequence
+---------------
+\n → newline
+\t → tab
+\\ → backslash
+\" → double quote
+\b → backspace
