@@ -9,3 +9,13 @@ Prperties of a Variable
 **Address**	The specific memory location where the value is stored. Programmers typically interact with the name, but the compiler manages the underlying address. The & operator can be used to retrieve this address.
 **Scope**	Determines the visibility or accessibility of the variable within the program. Common scopes include local (within a function or block) and global (accessible throughout the program).
 **Lifetime**	The duration for which the variable exists in memory during program execution. This is often tied to its scope; for example, a local variable's lifetime typically ends when the function it is in returns.
+=============================================================================================================================================================
+Specifiers
+-------------------------------------
+Specifier  | 	Meaning
+%d	       |  decimal integer
+%6d	       |  min width 6
+%f         | 	float, 6 decimals
+%6f        |	min width 6
+%.2f       |	2 decimals
+%6.2f	     |  min width 6, 2 decimals
