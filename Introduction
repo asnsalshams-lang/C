@@ -80,7 +80,21 @@ int main() {
 
 /*------------------------------------(c = getchar()) != EOF ✅ - parentheses protect the assignment, do it first
 c = getchar() != EOF ❌ - != grabs getchar() first, c gets true/false
-Think of parentheses like putting a fence around the assignment to keep != away from it!---------------------------------------------*/
+Think of parentheses like putting a fence around the assignment to keep != away from it!
+Without parentheses: c = getchar() != EOF
+
+The != operator is stronger (higher precedence)
+So != "grabs" or "steals" getchar() first
+It becomes: c = (getchar() != EOF)
+Result: c gets true/false (1 or 0)
+
+With parentheses: (c = getchar()) != EOF
+
+The parentheses protect =
+So = gets getchar() first (assignment happens)
+Then != compares c to EOF
+Result: c gets the actual character
+---------------------------------------------*/
 
     while ((c = getchar()) != EOF) {
         putchar(c);
