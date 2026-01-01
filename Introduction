@@ -66,3 +66,19 @@ for(fahr = 0; fahr<=300; fahr = fahr + 20){
 
 }
 }
+
+putchar() and getchar()
+----------------------
+getchar(): Reads one single character from standard input (usually keyboard). Returns it as an int (important – handles all char values plus EOF, which is -1). If end-of-file or error, returns EOF.
+putchar(): Writes one single character to standard output (usually screen). Takes an int (the char value) and outputs it.
+
+#echo porgram by putchar and getchar#
+#include <stdio.h>
+
+int main() {
+    int c;
+    while ((c = getchar()) != EOF) {
+        putchar(c);
+    }
+    return 0;
+}
