@@ -19,3 +19,26 @@ Escape sequence
 \\ → backslash
 \" → double quote
 \b → backspace
+
+Variables And Arithatic Expressions
+-----------------------------------
+#include <stdio.h>
+/* print Fahrenheit-Celsius table
+for fahr = 0, 20, ..., 300; floating-point version */
+int main()
+{
+float fahr, celsius;     #variable decralaration
+float lower, upper, step;  #variable decralaration
+
+/* assign values to varables */
+lower = 0;   
+upper = 300;
+step  = 20;
+fahr = lower;
+
+while (fahr <= upper){
+celsius = (5.0/9.0)*(fahr-32.0);
+printf("%.0f \t %.2f\n", fahr, celsius);
+fahr = fahr + step;
+}
+}
