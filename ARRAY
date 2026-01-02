@@ -9,4 +9,10 @@ You read memory you do not own.
 C didn’t stop you.
 The compiler didn’t stop you.
 The OS didn’t stop you.
+
+| Bug                 | Leads to              |
+| ------------------- | --------------------- |
+| Out-of-bounds read  | Info leak             |
+| Out-of-bounds write | Memory corruption     |
+| Controlled index    | Exploitable primitive |
 ---------------------------------------------------------
