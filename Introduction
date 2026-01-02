@@ -197,5 +197,14 @@ int main(){
 
     return 0;
 }
+####################### Connection between function, arguement, Address and stack  ######################################
 printf("Addresses: &k=%p, &c=%p\n", (void*)&k, (void*)&c); completely is not necssory!
 printf("%p, %p", &k, &c) # others are for more understand, (void*)= Required for safe printing with %p (most compilers warn without it)
+## In the result k is more higher value thean c ## because the stack grows downward ###
+
+Each function call allocates one contiguous stack frame.
+All stack-based local variables live inside that frame at fixed offsets.
+The stack grows downward.
+RSP only tracks the top of the stack.
+CALL/RET and MOV instructions move data — not RSP by itself.
+######################################################################################################################
