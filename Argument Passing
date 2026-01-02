@@ -1,0 +1,84 @@
+Case 1: Normal variable (cannot affect caller)
+==============================================
+void f(int x) {
+    x = 99;
+}
+
+int main() {
+    int a = 10;
+    f(a);
+    printf("%d\n", a);   // still 10
+}
+
+What happened
+-------------------
+a was copied into x
+x changed
+a stayed untouched
+
+Reality
+-------
+Different stack slots
+No shared memory
+
+Case 2: Pointer (can affect caller)
+===================================
+void f(int *x) {
+    *x = 99;
+}
+
+int main() {
+    int a = 10;
+    f(&a);
+    printf("%d\n", a);   // now 99
+}
+
+What happened
+--------------
+Address of a was copied
+x points to a
+Writing through x overwrote caller memory
+
+Reality
+-------
+Pointer copied
+Target memory shared
+
+Case 3: Array (same as pointer)
+-------------------------------
+void f(int arr[]) {
+    arr[0] = 99;
+}
+
+int main() {
+    int a[3] = {1,2,3};
+    f(a);
+    printf("%d\n", a[0]); // 99
+}
+
+What happened
+--------------
+a became &a[0]
+Address copied
+Array modified
+
+Reality
+-------
+No array copy
+Direct memory access
+
+####
+If a function receives an address, it can write to your memory.
+If it receives a value, it cannot.
+######
+
+int → copy → safe
+int * → address copy → unsafe
+array → pointer → unsafe
+
+| Bug type        | Why it exists        |
+| --------------- | -------------------- |
+| Stack overflow  | array = pointer      |
+| Arbitrary write | pointer argument     |
+| Info leak       | uninitialized locals |
+| UAF             | stale address reused |
