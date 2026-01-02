@@ -197,5 +197,5 @@ int main(){
 
     return 0;
 }
-
-
+printf("Addresses: &k=%p, &c=%p\n", (void*)&k, (void*)&c); completely is not necssory!
+printf("%p, %p", &k, &c) # others are for more understand, (void*)= Required for safe printing with %p (most compilers warn without it)
