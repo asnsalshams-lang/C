@@ -179,3 +179,23 @@ int main() {
 1.7 Function
 =============
 
+Subract 2 values and assing to a memroy location +++++ get the result's location and the result valu +++++++++++++++++
+#include <stdio.h>
+
+int squar(int x){
+    return x * x;
+}
+
+int main(){
+    int a = 2;
+    int b = 6;
+    int k = squar(a);
+    int c = squar(b);
+
+    printf("Addresses: &k=%p, &c=%p\n", (void*)&k, (void*)&c);
+    printf("Values: k=%d, c=%d\n", k, c);
+
+    return 0;
+}
+
+
