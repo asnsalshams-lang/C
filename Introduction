@@ -44,9 +44,9 @@ printf("%.0f \t %.2f\n", fahr, celsius);
 fahr = fahr + step;
 }
 }
-
+========
 For loop
---------
+=========
 1. Execute init ONCE
 2. Jump to cond
 3. If cond == false → exit loop
@@ -102,8 +102,9 @@ Result: c gets the actual character
     return 0;
 }
 
-Array
-=====
+==========
+1.6 Array
+==========
 1st issue:
 Type: Out-of-Bounds Array Access (Undefined Behavior)
 Impact: Reads uninitialized / unintended stack memory, leading to unpredictable output
@@ -173,4 +174,8 @@ int main() {
 
     return 0;
 }
+
+=============
+1.7 Function
+=============
 
