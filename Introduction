@@ -102,4 +102,75 @@ Result: c gets the actual character
     return 0;
 }
 
+Array
+=====
+1st issue:
+Type: Out-of-Bounds Array Access (Undefined Behavior)
+Impact: Reads uninitialized / unintended stack memory, leading to unpredictable output
+Root Cause: Incorrect loop bounds and invalid index usage
+
+#include <stdio.h>
+int main(){
+int c, i, nwhite, nother;
+int ndigit[10];
+
+nwhite = nother = 0;
+
+for(i=0; i<=10; ++i)
+        ndigit[i] = 0;
+
+while((c=getchar()) != EOF)
+        if (c>=0 && c<= 9)
+                ++ndigit[c-'0'];
+        else if (c==' ' || c=='\n' || c=='\t')
+                ++nwhite;
+        else
+                ++nother;
+printf("%d", ndigit[i]);
+}
+
+why the output is 32751 when i enter 1, don't correct the code i need to know what happened in internal??????????????????????????????????????????????????????????????
+#####Root Causes###
+Out-of-bounds access
+The array ndigit[10] is valid only for indexes 0–9.
+Using <= 10 in loops or printing ndigit[i] when i == 10 reads memory that does not belong to the array.
+Wrong digit check
+getchar() returns ASCII characters ('0'–'9'), not numeric values (0–9).
+Checking c >= 0 && c <= 9 is always false for keyboard input.
+C does no bounds checking
+Writing or reading past array limits causes undefined behavior, not immediate errors.
+Key Rules to Remember
+Arrays in C do not track their size.
+Loop bounds must be < size, not <= size.
+Characters must be compared as characters ('0'–'9').
+Never print or read an array using an index you didn’t explicitly control.
+---------------------------------------------------------------------------------
+-----#Correct code#-----
+#include <stdio.h>
+
+int main() {
+    int c, i;
+    int nwhite = 0, nother = 0;
+    int ndigit[10];
+
+    /* initialize array */
+    for (i = 0; i < 10; ++i)
+        ndigit[i] = 0;
+
+    /* process input */
+    while ((c = getchar()) != EOF) {
+        if (c >= '0' && c <= '9')
+            ++ndigit[c - '0'];
+        else if (c == ' ' || c == '\n' || c == '\t')
+            ++nwhite;
+        else
+            ++nother;
+    }
+
+    /* print digit counts */
+    for (i = 0; i < 10; ++i)
+        printf("digit %d: %d\n", i, ndigit[i]);
+
+    return 0;
+}
 
