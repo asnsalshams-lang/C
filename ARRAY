@@ -1,0 +1,12 @@
+Arrays do NOT know their size
+Bounds are NOT checked
+Indexing is just pointer arithmetic
+
+================================1st issue==================
+What really happened?
+You didn’t just get an “array error”.
+You read memory you do not own.
+C didn’t stop you.
+The compiler didn’t stop you.
+The OS didn’t stop you.
+---------------------------------------------------------
