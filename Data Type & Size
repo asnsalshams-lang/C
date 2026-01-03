@@ -1,0 +1,253 @@
+# C Data Types & Exploitation Reference
+
+## Core Data Types - What You MUST Know
+
+### Integer Types & Sizes
+
+| Type        | Guaranteed Minimum | Your System (64-bit Linux) |                   Signed Range                          |         Unsigned Range          |
+|-------------|--------------------|----------------------------|---------------------------------------------------------|---------------------------------|
+| `char`      | 8 bits             | 1 byte                     | -128 to 127                                             | 0 to 255                        |
+| `short`     | 16 bits            | 2 bytes                    | -32,768 to 32,767                                       | 0 to 65,535                     |
+| `int`       | 16 bits            | 4 bytes                    | -2,147,483,648 to 2,147,483,647                         | 0 to 4,294,967,295              |
+| `long`      | 32 bits            | 8 bytes                    | -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 | 0 to 18,446,744,073,709,551,615 |
+| `long long` | 64 bits            | 8 bytes                    | Same as long                                            | Same as long                    |
+
+**CRITICAL:** Sizes are NOT guaranteed. Always verify with `sizeof()` on your target system.
+
+---
+
+## Signed vs Unsigned - The Foundation
+
+### What's the Difference?
+
+**Same bits. Different interpretation.**
+
+```
+Binary: 11111111 
+├─ signed char   → -1   
+└─ unsigned char → 255  
+:both are same in size:
+```
+
+### Tested Behavior
+
+```c
+signed char c1 = -1;     // Binary: 11111111
+unsigned char c2 = -1;   // Same binary: 11111111
+
+printf("%d\n", c1);      // Prints: -1
+printf("%d\n", c2);      // Prints: 255
+```
+
+**Key Insight:** Assigning negative to unsigned wraps around. `-1` becomes max value.
+
+---
+
+## Overflow - The Silent Killer
+
+### What You Observed
+
+```c
+// Signed overflow
+char c = 200;            // Wraps to: -56
+// Calculation: 200 - 256 = -56
+
+// Unsigned overflow  
+unsigned char uc = 300;  // Wraps to: 44
+// Calculation: 300 % 256 = 44
+```
+
+### Arithmetic Overflow
+
+```c
+unsigned char a = 5, b = 10;
+unsigned char result = a - b;  // 5 - 10 = -5, but wraps to 251
+// Calculation: 256 - 5 = 251
+```
+
+**Danger:** No error. No crash. Just wrong data.
+
+---
+
+## Truncation - High Bits Vanish
+
+### What Happens
+
+```c
+int x = 70000;
+short s = x;    // Becomes: 4464
+char c = x;     // Becomes: 112
+```
+
+**Binary breakdown:**
+```
+70000 = 00000001 00010001 01110000
+         ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
+         (lost)   (short)  (char)
+```
+
+### Exploitation Path
+
+Program checks value, then truncates:
+```c
+if (large_value < 32767) {  // Fails for 70000
+    short s = large_value;  // But becomes 4464 after cast
+    // Now passes checks that expect small values
+}
+```
+
+---
+
+## Sign Extension vs Zero Extension
+
+### The Rules
+
+**Signed → Larger Type = Sign Extension (fill with sign bit)**
+```c
+signed char c = -56;     // 11001000
+int i = c;               // 11111111 11111111 11111111 11001000
+                         // Still -56  (think about how -1 beome 11111111. and what happen in the bits if the value become -127->-1 )
+```t
+
+**Unsigned → Larger Type = Zero Extension (fill with zeros)**
+```c
+unsigned char uc = 200;  // 11001000
+int i = uc;              // 00000000 00000000 00000000 11001000
+                         // Becomes 200
+```
+
+### Why This Matters
+
+Same starting value, different results:
+```c
+signed char sc = 200;    // Stored as -56 (wrapped)
+int i1 = sc;             // Sign extends to -56
+
+unsigned char uc = 200;  // Stored as 200
+int i2 = uc;             // Zero extends to 200
+```
+
+---
+
+## The Deadly Mix: Signed + Unsigned Comparison
+
+### What You Discovered
+
+```c
+int signed_val = -1;
+unsigned int unsigned_val = 1;
+
+if (signed_val < unsigned_val) {
+    // This does NOT execute
+}
+```
+
+**Why?** Signed gets promoted to unsigned:
+- `-1` becomes `4,294,967,295`
+- Comparison: `4294967295 < 1` → FALSE
+
+### Real Exploit
+
+```c
+int user_len = -1;  // Attacker input
+unsigned int buf_size = 100;
+
+if (user_len < buf_size) {
+    // Check says: BLOCKED (correct)
+}
+
+// But elsewhere:
+memcpy(buffer, data, user_len);  
+// -1 cast to size_t = 18,446,744,073,709,551,615
+// MASSIVE overflow
+```
+
+**Tested Result:** Check blocks correctly, but cast creates 18 quintillion byte copy.
+
+---
+
+## Exploitation Patterns
+
+### 1. Integer Overflow Bypass
+
+```c
+unsigned int size = 0xFFFFFFFF;  // Max value
+size = size + 1;                 // Wraps to 0
+buffer = malloc(size);           // Allocates tiny/zero buffer
+// Copy large data → heap overflow
+```
+
+### 2. Addition Overflow
+
+```c
+unsigned int buf_size = 100;
+unsigned int user_len = 4294967295;  // Max uint
+unsigned int total = user_len + 60;  // Wraps to 59
+
+if (total < buf_size) {  // PASSES (59 < 100)
+    // Allocate 59 bytes
+    // Copy 4294967295 bytes → overflow
+}
+```
+
+### 3. Multiplication Overflow
+
+```c
+size_t total = num_items * item_size;
+// If num_items = 0x80000000, item_size = 2
+// Result wraps to 0
+
+if (total < MAX) {  // PASSES
+    malloc(total);  // Tiny allocation
+    // Copy actual size → overflow
+}
+```
+
+### 4. Truncation After Check
+
+```c
+int value = 70000;
+if (value < 32767) {  // FAILS
+    short s = value;  // But if check is bypassed, becomes 4464
+}
+```
+
+---
+
+## Defense Checklist
+
+- [ ] Never mix signed and unsigned in comparisons
+- [ ] Check for overflow BEFORE arithmetic: `if (a > MAX - b)` instead of `if (a + b > MAX)`
+- [ ] Use `size_t` for all sizes and lengths (it's unsigned and pointer-width)
+- [ ] Validate ranges AFTER type conversions, not before
+- [ ] Enable compiler warnings: `-Wall -Wextra -Wconversion`
+- [ ] For portable code, use `<stdint.h>`: `int32_t`, `uint64_t`, etc.
+
+---
+
+## Quick Reference Commands
+
+```bash
+# Compile with all warnings
+gcc -Wall -Wextra -Wconversion -pedantic file.c
+
+# Check sizes on your system
+sizeof(char)       # 1 byte
+sizeof(short)      # 2 bytes  
+sizeof(int)        # 4 bytes
+sizeof(long)       # 8 bytes (Linux 64-bit) / 4 bytes (Windows 64-bit)
+sizeof(long long)  # 8 bytes
+```
+
+---
+
+## The One Rule to Remember
+
+**Data types don't prevent overflow. They define HOW it overflows.**
+
+Every vulnerability here happens because:
+1. Values exceed type limits → wrap around
+2. Types get mixed → unexpected conversions
+3. Checks happen at one type → usage at another type
+
+**Your advantage:** Now you know exactly where to look and what breaks.
