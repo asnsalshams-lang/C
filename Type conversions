@@ -1,0 +1,92 @@
+Type Conversions in C - Study Notes
+Core Concepts
+1. Implicit Type Conversions (Promotion)
+
+    Rule: Smaller types automatically convert to larger types
+    Hierarchy: char → int → long → float → double
+    Example:
+
+c
+
+char c = 'A';  // c = 65
+int x = 5;
+int result = c + x;  // c converts to int first, then: 65 + 5 = 70
+
+2. Character Arithmetic
+
+    Key insight: Characters are just small integers
+    ASCII values: '0'=48, '1'=49, ... '9'=57 (consecutive)
+    Digit conversion: '5' - '0' = 53 - 48 = 5
+    Case conversion: Uppercase + 32 = lowercase
+        'A' (65) + 32 = 'a' (97)
+        In code: c + 'a' - 'A' means c + 32
+
+3. Signed ↔ Unsigned Conversion
+
+    When negative becomes unsigned: Bit pattern stays same, interpretation changes
+    Example:
+
+c
+
+int x = -1;              // Binary: 11111111111111111111111111111111
+unsigned int y = x;      // Same bits, now means: 4,294,967,295
+
+    Exploit relevance: Negative numbers become huge positive numbers
+
+4. Truncation (Bigger → Smaller Type)
+
+    Rule: High-order bits are dropped
+    Formula: result = value % (max_of_smaller_type + 1)
+    Example:
+
+c
+
+int big = 300;           // Binary: 00000000 00000000 00000001 00101100
+char small = big;        // Keeps only: 00101100 = 44
+// Calculation: 300 % 256 = 44
+
+Critical Exploit Pattern: Integer Overflow Bypass
+The Vulnerability
+
+Different type sizes in check vs use:
+c
+
+// Check function - uses small type (16-bit)
+int check_size(unsigned short len) {
+    return (len + 1 <= 256);  // 65535 + 1 wraps to 0
+}
+
+// Copy function - uses large type (64-bit)
+void do_copy(char *src, size_t len) {
+    char buffer[256];
+    memcpy(buffer, src, len + 1);  // 65535 + 1 = 65536 (no wrap)
+}
+
+void vulnerable(char *src, unsigned short user_len) {
+    if (check_size(user_len)) {      // Wraps, check passes
+        do_copy(src, user_len);       // Doesn't wrap, overflow!
+    }
+}
+```
+
+### Attack with len = 65535:
+1. **Check**: `65535 + 1` wraps to `0` (unsigned short, 16-bit) → `0 <= 256` ✓ passes
+2. **Copy**: `65535` converts to `size_t` → `65535 + 1 = 65536` (no wrap) → **buffer overflow!**
+
+## Why Type Sizes Matter
+```
+unsigned short (16-bit): max = 65,535
+    65535 + 1 = wraps to 0
+
+size_t (64-bit): max = 18 quintillion  
+    65535 + 1 = 65,536 (no wrap)
+
+Same number, different type = different result
+Key Takeaways for Exploit Dev
+
+    Small type in security check → can wrap/overflow → bypass
+    Large type in actual operation → doesn't wrap → triggers vulnerability
+    Signed/unsigned mixing → negative becomes huge positive
+    Truncation → predictable bit loss (use modulo to calculate)
+
+Practice reminder: When analyzing code for vulnerabilities, always check if length calculations use different type sizes in checks vs actual operations.
