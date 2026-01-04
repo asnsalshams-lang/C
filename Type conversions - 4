@@ -83,6 +83,20 @@ size_t (64-bit): max = 18 quintillion
 
 Same number, different type = different result
 Key Takeaways for Exploit Dev
+==============================
+Integer Promotion Occurs
+==============================
+void process(unsigned char len) {
+    char buf[200];
+    
+    if (len + 100 < 200) {
+        memcpy(buf, data, len + 100);
+    }
+}
+
+
+How many bytes does memcpy try to copy?
+
 
     Small type in security check → can wrap/overflow → bypass
     Large type in actual operation → doesn't wrap → triggers vulnerability
@@ -90,3 +104,74 @@ Key Takeaways for Exploit Dev
     Truncation → predictable bit loss (use modulo to calculate)
 
 Practice reminder: When analyzing code for vulnerabilities, always check if length calculations use different type sizes in checks vs actual operations.
+
+
+#Subject: The mechanics of Bit Representations and Integer Comparisons
+=======================================================================
+Summary of Key Concepts:----------------
+32-Bit Capacities:
+-----------------
+1. 2^{32} (4,294,967,296): The total number of unique values in a 32-bit space. It requires 33 bits to represent as a literal integer.
+2. 2^{32}-1 (4,294,967,295): The maximum value of an unsigned int. In binary, this is 32 ones (0xFFFFFFFF).
+The "Integer Promotion" Rule:
+----------------------------
+In C and C++, types smaller than int (like char and short) are automatically promoted to a signed 32-bit int before any calculation or comparison.
+1. Impact on s < i: Even if s is an unsigned short (65535) and i is an int (-1), s is promoted to a positive 32-bit int.
+2. The Result: The computer compares the mathematical values (+65535 vs -1). Therefore, 65535 < -1 is False (0).
+Sign vs. Value Preservation:
+----------------------------
+1. Promotion to a signed type does not make a positive number negative. It simply moves the value into a larger "container" that is capable of handling signs.
+2. 65535 promoted to 32-bit signed int stays +65535 (the sign bit remains 0).
+The Comparison Paradox:
+------------------------
+1. Small vs Large: unsigned short (16-bit) vs int (32-bit) → Promotes to int. Math is logically correct (65535 is not less than -1).
+2. Equal Rank: unsigned int (32-bit) vs int (32-bit) → Promotes to unsigned. The -1 "wraps" to 4.2 billion. Math becomes bit-heavy (65535 IS less than 4.2 billion).
+
+Technical Takeaway:
+------------------
+When debugging security checks or memory offsets, always remember that the compiler 
+prioritizes mathematical value preservation for small types (char/short), 
+but reverts to bit-level wrapping for full-sized int types.
+
+==========================
+Bit promotions in addition
+============================
+If len = 200, the memcpy will copy 0 bytes because it will never be executed. 
+Here is the step-by-step breakdown of why: Integer Promotion: 
+
+In the expression len + 100, the variable len is an unsigned char. In C, any integer type smaller than int (like char or short) is automatically promoted to a signed int before an arithmetic operation.
+The Calculation:
+len (200) is promoted to an int with the value 200.
+The constant 100 is also an int.
+The addition is performed in int logic: \(200+100=300\).
+
+The Condition Check: The code checks if (len + 100 < 200).
+In this case, the check is (300 < 200).
+Since 300 is not less than 200, the condition is false.
+
+Final Result: Because the if condition fails, the memcpy call inside the block is skipped entirely. No data is copied. 
+
+What if there was no if check? If you called memcpy(buf, data, len + 100) directly with len = 200 without the if safety check, the third argument (which expects a size_t) would receive the value 300. This would cause a buffer overflow, as it would try to write 300 bytes into a 200-byte array (buf[200]).
+
+
+The addition does not wrap around to 44 because of a rule in C called Integer Promotion. 
+In C, arithmetic operations are never performed on types smaller than int. 
+When you perform len + 100, the following happens: 
+Promotion: The unsigned char len (value 200) is promoted to a signed int.
+Calculation: The addition is performed using integer precision: 200 + 100 = 300.
+Comparison: The condition evaluated is 300<200, which is false.
+
+A wrap-around would only occur if you assigned the result back to an unsigned char before the comparison, like this:	
+unsigned char sum = len + 100; // sum becomes 44
+if (sum < 200) { ... }         // This would be true
+
+
+e.g
+void process(unsigned char len) {
+    char buf[200];
+    
+    if (len + 100 < 200) {
+        memcpy(buf, data, len + 100);
+    }
+}
+char len is 200;
