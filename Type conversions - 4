@@ -61,6 +61,7 @@ Critical Exploit Pattern: Integer Overflow Bypass
 The Vulnerability
 
 Different type sizes in check vs use:
+--------------------------------------
 c
 
 // Check function - uses small type (16-bit)
@@ -83,7 +84,7 @@ void vulnerable(char *src, unsigned short user_len) {
 
 ### Attack with len = 65535:
 1. **Check**: `65535 + 1` wraps to `0` (unsigned short, 16-bit) → `0 <= 256` ✓ passes
-2. **Copy**: `65535` converts to `size_t` → `65535 + 1 = 65536` (no wrap) → **buffer overflow!**
+2. **Copy**: `65535` converts to `size_t` → `65535 + 1 = 65536` (no wrap) → **buffer overflow!** size_t is unsigned int
 
 ## Why Type Sizes Matter
 ```
