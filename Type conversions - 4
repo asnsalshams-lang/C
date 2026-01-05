@@ -152,11 +152,13 @@ but reverts to bit-level wrapping for full-sized int types.
 
 Key Takeaway for Security :
 If you are writing a security check (like if (size + 10 > buffer_size)), always use unsigned types. If you use signed types, 
-the compiler may delete your if check entirely during optimization because it assumes \(size+10\) will never mathematically be smaller than \(size\). 
+the compiler may delete your if check entirely during optimization because it assumes size+10 will never mathematically be smaller than size. 
 
 ==========================
 Bit promotions in addition
 ============================
+char len = 200
+(len + 100 < 200)
 If len = 200, the memcpy will copy 0 bytes because it will never be executed. 
 Here is the step-by-step breakdown of why: Integer Promotion: 
 
@@ -164,7 +166,7 @@ In the expression len + 100, the variable len is an unsigned char. In C, any int
 The Calculation:
 len (200) is promoted to an int with the value 200.
 The constant 100 is also an int.
-The addition is performed in int logic: \(200+100=300\).
+The addition is performed in int logic: 200+100=300.
 
 The Condition Check: The code checks if (len + 100 < 200).
 In this case, the check is (300 < 200).
@@ -172,7 +174,8 @@ Since 300 is not less than 200, the condition is false.
 
 Final Result: Because the if condition fails, the memcpy call inside the block is skipped entirely. No data is copied. 
 
-What if there was no if check? If you called memcpy(buf, data, len + 100) directly with len = 200 without the if safety check, the third argument (which expects a size_t) would receive the value 300. This would cause a buffer overflow, as it would try to write 300 bytes into a 200-byte array (buf[200]).
+What if there was no if check? If you called memcpy(buf, data, len + 100) directly with len = 200 without the if safety check, 
+the third argument (which expects a size_t) would receive the value 300. This would cause a buffer overflow, as it would try to write 300 bytes into a 200-byte array (buf[200]).
 
 
 The addition does not wrap around to 44 because of a rule in C called Integer Promotion. 
@@ -188,11 +191,15 @@ if (sum < 200) { ... }         // This would be true
 
 
 e.g
-void process(unsigned char len) {
-    char buf[200];
+//not vlunerable
+                void process(unsigned char len) {
+                    char buf[200];
     
-    if (len + 100 < 200) {
-        memcpy(buf, data, len + 100);
-    }
-}
-char len is 200;
+                    if (len + 100 < 200) {
+                        memcpy(buf, data, len + 100);
+                            }
+                        }
+                    char len is 200;
+
+//vulnerable
+        f ((unsigned char)(len + 100) < 200)
