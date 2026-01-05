@@ -228,5 +228,51 @@ Rule 3: Wrapping only happens on overflow:3
 Your example did not overflow
 
 Wrapping ≠ promotion
-%d → int (signed)
-%u → unsigned int
+
+%d → int (signed) & %u → unsigned int
+=====================================
+unsigned char a = 10;
+unsigned char b = 20;
+unsigned int result = a - b;  // Result = 4,294,967,286 (after promotion)
+
+printf("%u", result);  // Prints: 4294967286 ✓
+printf("%d", result);  // Prints: -10 (reinterprets same bits)
+```
+
+**The bits are identical. printf just reads them differently.**
+
+---
+
+## Visual Example
+
+Imagine a thermometer:
+- If you read it in Celsius: -10°
+- If you read it in Fahrenheit: 14°
+- **The mercury level didn't move. You just changed your interpretation.**
+
+Same bits, different meaning.
+
+---
+
+## The Simple Rule to Remember
+
+**When leftmost bit = 1:**
+- `%u` reads it as: Big positive number
+- `%d` reads it as: `big_number - 4,294,967,296` (becomes negative)
+
+**When leftmost bit = 0:**
+- Both read it the same way (positive)
+
+---
+
+## For Your Notes
+```
+printf with %d does NOT change the value.
+It reinterprets the SAME bits as signed.
+
+Quick check:
+- Unsigned value < 2,147,483,648 → %d prints same number
+- Unsigned value ≥ 2,147,483,648 → %d prints (value - 4,294,967,296)
+
+Rule: Always use %u for unsigned, %d for signed.
+Mixing them = confusing output, same bits.
