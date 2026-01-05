@@ -228,3 +228,5 @@ Rule 3: Wrapping only happens on overflow:3
 Your example did not overflow
 
 Wrapping ≠ promotion
+%d → int (signed)
+%u → unsigned int
