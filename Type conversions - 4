@@ -129,22 +129,30 @@ Summary of Key Concepts:----------------
 The "Integer Promotion" Rule:
 ----------------------------
 In C and C++, types smaller than int (like char and short) are automatically promoted to a signed 32-bit int before any calculation or comparison.
-1. Impact on s < i: Even if s is an unsigned short (65535) and i is an int (-1), s is promoted to a positive 32-bit int.
-2. The Result: The computer compares the mathematical values (+65535 vs -1). Therefore, 65535 < -1 is False (0).
+For example:
+    unsigned char a = 200;
+    unsigned char b = 100;
+    printf("size of a is: %zd", sizeof(a));
+    printf("\nsize of a is: %zd", sizeof(b));
+    printf("\nSize of a+b is: %zd", sizeof(a+b));
+
+1. Impact on s < i:  short (65535) and i is an int (-1), s is promoted to a positive 32-bit int.
+2. The Result: The computer compares the mathematical values (int +65535 v/s int  -1). Therefore, 65535 < -1 is False (0).
 Sign vs. Value Preservation:
 ----------------------------
 1. Promotion to a signed type does not make a positive number negative. It simply moves the value into a larger "container" that is capable of handling signs.
 2. 65535 promoted to 32-bit signed int stays +65535 (the sign bit remains 0).
 The Comparison Paradox:
-------------------------
 1. Small vs Large: unsigned short (16-bit) vs int (32-bit) → Promotes to int. Math is logically correct (65535 is not less than -1).
 2. Equal Rank: unsigned int (32-bit) vs int (32-bit) → Promotes to unsigned. The -1 "wraps" to 4.2 billion. Math becomes bit-heavy (65535 IS less than 4.2 billion).
-
 Technical Takeaway:
-------------------
 When debugging security checks or memory offsets, always remember that the compiler 
 prioritizes mathematical value preservation for small types (char/short), 
 but reverts to bit-level wrapping for full-sized int types.
+
+Key Takeaway for Security :
+If you are writing a security check (like if (size + 10 > buffer_size)), always use unsigned types. If you use signed types, 
+the compiler may delete your if check entirely during optimization because it assumes \(size+10\) will never mathematically be smaller than \(size\). 
 
 ==========================
 Bit promotions in addition
