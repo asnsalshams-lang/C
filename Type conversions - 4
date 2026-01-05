@@ -30,8 +30,20 @@ c
 
 int x = -1;              // Binary: 11111111111111111111111111111111
 unsigned int y = x;      // Same bits, now means: 4,294,967,295
+printf("%u", y);
+OR
+    int x = -1;
 
-    Exploit relevance: Negative numbers become huge positive numbers
+    // No need for a second variable
+    printf("As signed: %d\n", x);   // Output: -1
+    printf("As unsigned: %u\n", x); // Output: 4294967295 (on 32-bit)
+\\When you pass a variable to printf, you are passing the raw binary data stored in that memory location.
+
+When should you assign it to a new variable?
+While you don't need it for printing, 
+you would want to assign it to an unsigned int variable if you plan to do math or comparisons later in your program.
+ eg. x <= y
+               //Exploit relevance: Negative numbers become huge positive numbers
 
 4. Truncation (Bigger → Smaller Type)
 
