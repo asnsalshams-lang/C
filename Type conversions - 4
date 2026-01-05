@@ -43,7 +43,13 @@ When should you assign it to a new variable?
 While you don't need it for printing, 
 you would want to assign it to an unsigned int variable if you plan to do math or comparisons later in your program.
  eg. x <= y
-               //Exploit relevance: Negative numbers become huge positive numbers
+
+If one operand is unsigned and the other is signed, and the unsigned type can represent all values of the signed type, 
+the signed operand is converted to unsigned.
+
+            //Exploit relevance: Negative numbers become huge positive numbers
+
+
 
 4. Truncation (Bigger → Smaller Type)
 
