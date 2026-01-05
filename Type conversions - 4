@@ -209,3 +209,22 @@ e.g
 
 //vulnerable
         f ((unsigned char)(len + 100) < 200)
+
+
+
+Correct mental rules (lock these in)
+===================================
+Rule 1: Promotions come first:
+
+char, short → int (or unsigned int)
+
+Rule 2: Signed vs unsigned decides comparisons:
+
+If unsigned type can represent signed values → signed converts to unsigned
+Comparison also works as a unsigned int .if[ a = -20 and b = 10, will converto to 20<10]
+
+Rule 3: Wrapping only happens on overflow:3
+
+Your example did not overflow
+
+Wrapping ≠ promotion
