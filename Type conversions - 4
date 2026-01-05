@@ -220,8 +220,8 @@ char, short → int (or unsigned int)
 
 Rule 2: Signed vs unsigned decides comparisons:
 
-If unsigned type can represent signed values → signed converts to unsigned
-Comparison also works as a unsigned int .if[ a = -20 and b = 10, will converto to 20<10]
+#If unsigned type can represent signed values → signed converts to unsigned
+#Comparison also works as a unsigned int .if[ a = 10 and b = -20, a<b will converto to 10 < 4294967276]
 
 Rule 3: Wrapping only happens on overflow:3
 
