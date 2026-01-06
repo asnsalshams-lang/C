@@ -34,12 +34,13 @@ int if int can represent all its values
 otherwise unsigned int
 
 Examples:
-Original Type	After Promotion
-char	int
-signed char	int
-unsigned char	int
-short	int
-unsigned short	int (on most systems)
+Original Type   | 	After Promotion
+---------------------------------------
+char	          |     int
+signed char     |    	int
+unsigned char	  |     int
+short           |    	int
+unsigned short	|     int (on most systems)
 
 Example:
 
@@ -61,24 +62,6 @@ If both operands already have the same type → use it.
 
 int + int → int
 unsigned int + unsigned int → unsigned int
-
-Rule 2: Any long double?
-
-Convert the other operand to long double
-
-(skip — not your focus yet)
-
-Rule 3: Any double?
-
-Convert the other operand to double
-
-(skip)
-
-Rule 4: Any float?
-
-Convert the other operand to float
-
-(skip)
 
 Rule 5: Integer types only (THIS is your battlefield)
 
