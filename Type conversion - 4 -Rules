@@ -74,7 +74,7 @@ Right-hand side is converted to the left-hand type.
 | ---------------------- | ---------------------- |
 | `int x = 3.9;`         | `x = 3` (truncate)     |
 | `unsigned int u = -1;` | `u = UINT_MAX`         |
-| `char c = 300;`        | Implementation-defined |
+| `char c = 300;`        | Implementation-defined | will Wrap around as signed
 
 ⚠️ NO warnings ≠ safe
 
